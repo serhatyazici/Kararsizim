@@ -26,3 +26,8 @@
 
 {% include "partials/_pagination.html" %}
 {% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/vote.js' %}"></script>
+{% endblock %}

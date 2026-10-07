@@ -48,3 +48,47 @@ class Option(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Vote(models.Model):
+    poll = models.ForeignKey(
+        Poll,
+        on_delete=models.CASCADE,
+        related_name="votes",  # benzersizlik kısıtı için anketle de ilişkili tutulur
+        verbose_name="anket",
+    )
+    option = models.ForeignKey(
+        Option,
+        on_delete=models.CASCADE,
+        related_name="votes",
+        verbose_name="seçenek",
+    )
+    # Giriş yapılmışsa oyu veren üye; üye silinirse oy kalır (SET_NULL)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="votes",
+        verbose_name="kullanıcı",
+    )
+    # Tarayıcı çerezinden gelen anonim kimlik (ziyaretçiler de oy verebilsin diye)
+    voter_token = models.UUIDField("oy veren tarayıcı")
+    created_at = models.DateTimeField("oluşturulma", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "oy"
+        verbose_name_plural = "oylar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["poll", "voter_token"], name="one_vote_per_browser"
+            ),
+            models.UniqueConstraint(
+                fields=["poll", "user"],
+                condition=models.Q(user__isnull=False),
+                name="one_vote_per_user",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.poll_id} → {self.option_id}"

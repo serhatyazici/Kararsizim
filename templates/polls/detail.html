@@ -6,3 +6,8 @@
 {% include "partials/_poll_card.html" with poll=poll %}
 <p class="back-link"><a href="{% url 'polls:feed' %}">← Tüm anketler</a></p>
 {% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/vote.js' %}"></script>
+{% endblock %}

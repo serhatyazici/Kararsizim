@@ -197,14 +197,14 @@ class FeedTests(TestCase):
             self.assertEqual(self.client.get(reverse("polls:feed") + f"?sayfa={value}").status_code, 200, value)
 
     def test_feed_query_count_is_constant(self):
-        # Sayfalama için COUNT + anketler (yazarla JOIN) + seçenekler = 3 sorgu
+        # Sayfalama için COUNT + anketler (yazarla JOIN) + seçenekler + ziyaretçinin oyları = 4 sorgu
         for i in range(3):
             make_poll(self.user, question=f"Anket {i} sorusu", options=("A", "B", "C"))
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(4):
             self.client.get(reverse("polls:feed"))
         for i in range(9):
             make_poll(self.user, question=f"Başka anket {i}", options=("A", "B", "C", "D"))
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(4):
             self.client.get(reverse("polls:feed"))
 
 

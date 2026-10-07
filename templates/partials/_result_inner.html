@@ -1,0 +1,7 @@
+<span class="result__fill" aria-hidden="true"></span>
+<span class="result__content">
+  <span class="result__text">{{ row.text }}</span>
+  {% if row.is_mine %}<span class="result__check" title="Senin oyun" aria-label="Senin oyun">✓</span>{% endif %}
+  {% if row.is_leader %}<span class="result__badge">önde 🔥</span>{% endif %}
+  <span class="result__percent">%{{ row.percent }}</span>
+</span>

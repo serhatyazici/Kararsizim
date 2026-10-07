@@ -11,16 +11,60 @@
   </h2>
   {% if poll.description %}<p class="poll-card__description muted">{{ poll.description|linebreaksbr }}</p>{% endif %}
 
-  <ul class="poll-card__options">
-    {% for option in poll.options.all %}
-      <li class="option" data-color="{{ option.position|add:1 }}">
-        <span class="option__dot" aria-hidden="true"></span>
-        <span class="option__text">{{ option.text }}</span>
-      </li>
-    {% endfor %}
-  </ul>
+  {# Sonuç alanı: oy sonrası JS ile güncellenir, ekran okuyuculara bildirilir #}
+  <div class="poll-card__body" aria-live="polite">
+    {% if poll.show_results %}
+      {% if poll.voted_option_id is None %}
+        {# Anketin sahibi, henüz oy vermedi: sonuçları görür ama istersen satıra tıklayıp oy verebilir #}
+        <form method="post" action="{% url 'polls:vote' poll.pk %}" data-vote-form>
+          {% csrf_token %}
+          <ul class="poll-card__options poll-results">
+            {% for row in poll.result_rows %}
+              <li class="result{% if row.is_mine %} result--mine{% endif %}" data-color="{{ row.color }}" style="--pct: {{ row.percent }}%">
+                <button class="result__body result__button" type="submit" name="option_id" value="{{ row.option_id }}" title="Bu seçeneğe oy ver">
+                  {% include "partials/_result_inner.html" %}
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+        </form>
+      {% else %}
+        <ul class="poll-card__options poll-results">
+          {% for row in poll.result_rows %}
+            <li class="result{% if row.is_mine %} result--mine{% endif %}" data-color="{{ row.color }}" style="--pct: {{ row.percent }}%">
+              <div class="result__body">
+                {% include "partials/_result_inner.html" %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% else %}
+      {# JS kapalıyken de çalışır: normal form POST #}
+      <form method="post" action="{% url 'polls:vote' poll.pk %}" data-vote-form>
+        {% csrf_token %}
+        <ul class="poll-card__options">
+          {% for option in poll.options.all %}
+            <li>
+              <button class="option option--button" type="submit" name="option_id" value="{{ option.pk }}" data-color="{{ option.position|add:1 }}">
+                <span class="option__dot" aria-hidden="true"></span>
+                <span class="option__text">{{ option.text }}</span>
+              </button>
+            </li>
+          {% endfor %}
+        </ul>
+      </form>
+    {% endif %}
+  </div>
 
   <div class="poll-card__footer muted">
-    <span>{{ poll.total_votes|default:0 }} oy</span>
+    <span data-total-votes>{{ poll.total_votes }} oy</span>
+    {% if poll.is_owner %}
+      <form class="inline-form poll-card__delete" method="post" action="{% url 'polls:delete' poll.pk %}"
+            data-confirm="Bu anketi silmek istediğine emin misin?">
+        {% csrf_token %}
+        <button class="link-danger" type="submit">Sil</button>
+      </form>
+    {% endif %}
   </div>
 </article>
