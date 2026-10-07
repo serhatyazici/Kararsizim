@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Sayfa bulunamadı — kararsızım{% endblock %}
+
+{% block content %}
+<section class="card error-card">
+  <p class="error-card__code" aria-hidden="true">404</p>
+  <h1 class="error-card__title">Bu sayfa kararsız kaldı… ve ortadan kayboldu 🤔</h1>
+  <p class="muted">Aradığın sayfa yok ya da silinmiş olabilir.</p>
+  <a class="btn" href="/">Ana sayfaya dön</a>
+</section>
+{% endblock %}

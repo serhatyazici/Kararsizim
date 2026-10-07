@@ -14,16 +14,21 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <a class="skip-link" href="#icerik">İçeriğe geç</a>
   {% include "partials/_header.html" %}
 
-  <main class="container" id="icerik">
-    {% include "partials/_messages.html" %}
+  <main class="container" id="icerik" tabindex="-1">
     {% block content %}{% endblock %}
+    {% if user.is_authenticated and request.resolver_match.url_name != 'create' %}
+      {% include "partials/_fab.html" %}
+    {% endif %}
   </main>
 
   <footer class="site-footer">
     <p>kararsızım · Kararsız mısın? Sor, millet karar versin.</p>
   </footer>
+
+  {% include "partials/_messages.html" %}
 
   <script src="{% static 'js/main.js' %}"></script>
   {% block extra_js %}{% endblock %}

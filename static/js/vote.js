@@ -26,9 +26,12 @@
       var content = el("span", "result__content");
       content.appendChild(el("span", "result__text", row.text));
       if (mine) {
-        var check = el("span", "result__check", "✓");
+        var check = el("span", "result__check");
         check.title = "Senin oyun";
-        check.setAttribute("aria-label", "Senin oyun");
+        var mark = el("span", "", "✓");
+        mark.setAttribute("aria-hidden", "true");
+        check.appendChild(mark);
+        check.appendChild(el("span", "visually-hidden", "Senin oyun"));
         content.appendChild(check);
       }
       if (row.is_leader) content.appendChild(el("span", "result__badge", "önde 🔥"));

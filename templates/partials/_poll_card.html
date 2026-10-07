@@ -6,9 +6,11 @@
     <span class="muted">· {{ poll.created_at|time_ago }}</span>
   </div>
 
-  <h2 class="poll-card__question">
-    {% if link %}<a href="{% url 'polls:detail' poll.pk %}">{{ poll.question }}</a>{% else %}{{ poll.question }}{% endif %}
-  </h2>
+  {% if link %}
+    <h2 class="poll-card__question"><a href="{% url 'polls:detail' poll.pk %}">{{ poll.question }}</a></h2>
+  {% else %}
+    <h1 class="poll-card__question">{{ poll.question }}</h1>
+  {% endif %}
   {% if poll.description %}<p class="poll-card__description muted">{{ poll.description|linebreaksbr }}</p>{% endif %}
 
   {# Sonuç alanı: oy sonrası JS ile güncellenir, ekran okuyuculara bildirilir #}
@@ -59,12 +61,16 @@
 
   <div class="poll-card__footer muted">
     <span data-total-votes>{{ poll.total_votes }} oy</span>
-    {% if poll.is_owner %}
-      <form class="inline-form poll-card__delete" method="post" action="{% url 'polls:delete' poll.pk %}"
-            data-confirm="Bu anketi silmek istediğine emin misin?">
-        {% csrf_token %}
-        <button class="link-danger" type="submit">Sil</button>
-      </form>
-    {% endif %}
+    <div class="poll-card__actions">
+      <button class="share-btn" type="button" data-share
+              data-share-path="{% url 'polls:detail' poll.pk %}" data-share-title="{{ poll.question }}">Paylaş</button>
+      {% if poll.is_owner %}
+        <form class="inline-form poll-card__delete" method="post" action="{% url 'polls:delete' poll.pk %}"
+              data-confirm="Bu anketi silmek istediğine emin misin?">
+          {% csrf_token %}
+          <button class="link-danger" type="submit">Sil</button>
+        </form>
+      {% endif %}
+    </div>
   </div>
 </article>

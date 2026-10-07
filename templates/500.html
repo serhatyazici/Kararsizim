@@ -1,0 +1,27 @@
+{% load static %}<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bir şeyler ters gitti — kararsızım</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+  {# Sunucu hatasında kullanıcı/oturum bilgisi güvenilir olmadığı için base.html kullanılmaz #}
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="logo" href="/" aria-label="kararsızım ana sayfa">kararsızım<span class="logo__mark">?</span></a>
+    </div>
+  </header>
+  <main class="container" id="icerik">
+    <section class="card error-card">
+      <p class="error-card__code" aria-hidden="true">500</p>
+      <h1 class="error-card__title">Bir şeyler ters gitti 😵</h1>
+      <p class="muted">Bu bizim hatamız, senin değil. Biraz sonra tekrar dene.</p>
+      <a class="btn" href="/">Ana sayfaya dön</a>
+    </section>
+  </main>
+</body>
+</html>

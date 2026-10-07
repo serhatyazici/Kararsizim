@@ -1,7 +1,10 @@
 {% if messages %}
-<div class="messages" aria-live="polite">
+<div class="toasts" role="status" aria-live="polite">
   {% for message in messages %}
-  <div class="message message--{{ message.level_tag|default:'info' }}">{{ message }}</div>
+  <div class="message message--{{ message.level_tag|default:'info' }}" data-toast>
+    <span>{{ message }}</span>
+    <button class="toast__close" type="button" aria-label="Kapat" hidden>×</button>
+  </div>
   {% endfor %}
 </div>
 {% endif %}

@@ -3,7 +3,9 @@
 {% block title %}Anketler — kararsızım{% endblock %}
 
 {% block content %}
-{% if not user.is_authenticated %}
+{% if user.is_authenticated %}
+<h1 class="visually-hidden">Anketler</h1>
+{% else %}
 <section class="card welcome">
   <div>
     <h1 class="welcome__title">Kararsız mısın? Sor, millet karar versin.</h1>
