@@ -14,16 +14,10 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-  <header class="site-header">
-    <div class="site-header__inner">
-      <a class="logo" href="/" aria-label="kararsızım ana sayfa">kararsızım<span class="logo__mark">?</span></a>
-      <nav class="site-header__nav" aria-label="Ana menü">
-        {% block header_nav %}{% endblock %}
-      </nav>
-    </div>
-  </header>
+  {% include "partials/_header.html" %}
 
   <main class="container" id="icerik">
+    {% include "partials/_messages.html" %}
     {% block content %}{% endblock %}
   </main>
 

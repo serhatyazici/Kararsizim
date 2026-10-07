@@ -106,6 +106,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Giriş / çıkış yönlendirmeleri
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+
 # Dil ve saat dilimi
 LANGUAGE_CODE = "tr"
 TIME_ZONE = "Europe/Istanbul"

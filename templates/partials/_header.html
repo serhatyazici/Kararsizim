@@ -1,0 +1,18 @@
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="logo" href="/" aria-label="kararsızım ana sayfa">kararsızım<span class="logo__mark">?</span></a>
+    <nav class="site-header__nav" aria-label="Ana menü">
+      {% if user.is_authenticated %}
+        <a class="btn btn--secondary" href="/anket/yeni/">Anket oluştur</a>
+        <span class="nav-user">@{{ user.username }}</span>
+        <form class="inline-form" method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button class="btn btn--text" type="submit">Çıkış</button>
+        </form>
+      {% else %}
+        <a class="btn btn--text" href="{% url 'accounts:login' %}">Giriş</a>
+        <a class="btn" href="{% url 'accounts:signup' %}">Üye ol</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>

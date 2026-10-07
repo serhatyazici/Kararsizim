@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Üye ol — kararsızım{% endblock %}
+
+{% block content %}
+<section class="card auth-card">
+  <h1 class="auth-card__title">Aramıza katıl</h1>
+  <p class="muted">Anket oluşturmak için üye olman gerekiyor. Oy vermek için üyelik şart değil.</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="form-error" role="alert">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+    {% endif %}
+
+    {% include "partials/_field.html" with field=form.email %}
+    {% include "partials/_field.html" with field=form.username %}
+    {% include "partials/_field.html" with field=form.password1 %}
+    {% include "partials/_field.html" with field=form.password2 %}
+
+    <button class="btn auth-card__submit" type="submit">Üye ol</button>
+  </form>
+
+  <p class="auth-card__switch muted">
+    Zaten üye misin?
+    <a href="{% url 'accounts:login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Giriş yap</a>
+  </p>
+</section>
+{% endblock %}
