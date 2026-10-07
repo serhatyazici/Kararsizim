@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Anketler — kararsızım{% endblock %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+<section class="card welcome">
+  <div>
+    <h1 class="welcome__title">Kararsız mısın? Sor, millet karar versin.</h1>
+    <p class="muted">Üye ol, kararsız kaldığın şeyi sor; herkes oy versin.</p>
+  </div>
+  <a class="btn" href="{% url 'accounts:signup' %}">Hemen üye ol</a>
+</section>
+{% endif %}
+
+<div class="feed">
+  {% for poll in page %}
+    {% include "partials/_poll_card.html" with poll=poll link=True %}
+  {% empty %}
+    <section class="card empty-state">
+      <p class="empty-state__text">Henüz anket yok. İlk kararsızlığı sen paylaş! 🤔</p>
+      <a class="btn" href="{% url 'polls:create' %}">Anket oluştur</a>
+    </section>
+  {% endfor %}
+</div>
+
+{% include "partials/_pagination.html" %}
+{% endblock %}

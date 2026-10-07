@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Anket oluştur — kararsızım{% endblock %}
+
+{% block content %}
+<section class="card auth-card">
+  <h1 class="auth-card__title">Kararsız kaldığın şeyi sor</h1>
+  <p class="muted">En az 2, en fazla 5 seçenek ekle. Herkes oy verebilir.</p>
+
+  <form method="post" id="poll-form" novalidate>
+    {% csrf_token %}
+
+    <div class="field">
+      <label class="field__label" for="{{ form.question.id_for_label }}">{{ form.question.label }}</label>
+      {{ form.question }}
+      {% for error in form.question.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+      {{ form.description }}
+      {% for error in form.description.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+    </div>
+
+    <fieldset class="field options">
+      <legend class="field__label">Seçenekler <span class="muted">(2–5 adet)</span></legend>
+      {% for error in form.non_field_errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+
+      <div id="option-list">
+        {% for value in form.option_values %}
+        <div class="option-row" data-color="{{ forloop.counter }}">
+          <span class="option__dot" aria-hidden="true"></span>
+          <input class="input" type="text" name="options" maxlength="80" data-counter
+                 placeholder="Seçenek {{ forloop.counter }}" aria-label="Seçenek {{ forloop.counter }}"
+                 value="{{ value }}">
+          <button class="option-row__remove" type="button" aria-label="Seçeneği kaldır" hidden>×</button>
+        </div>
+        {% endfor %}
+      </div>
+
+      <button class="btn btn--secondary" type="button" id="add-option" hidden>+ Seçenek ekle</button>
+    </fieldset>
+
+    <button class="btn auth-card__submit" type="submit">Yayınla</button>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/create-poll.js' %}"></script>
+{% endblock %}

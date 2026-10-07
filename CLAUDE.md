@@ -618,7 +618,7 @@ else:
 
 - [x] Faz 0 — Kurulum ve iskelet
 - [x] Faz 1 — Kullanıcı sistemi
-- [ ] Faz 2 — Anket oluşturma ve akış
+- [x] Faz 2 — Anket oluşturma ve akış
 - [ ] Faz 3 — Oylama ve sonuçlar
 - [ ] Faz 4 — Arayüz cilası
 - [ ] Faz 5 — Supabase'e geçiş
@@ -627,6 +627,7 @@ else:
 **Notlar / alınan kararlar** (Claude Code her faz sonunda buraya ekler)
 - Faz 0: Python 3.14 + Django 5.2.18 ile kuruldu (yerel `.venv`). `accounts.User` için ek olarak `Lower(email)` ve `Lower(username)` veritabanı kısıtları eklendi (büyük/küçük harf duyarsız benzersizlik DB düzeyinde de garanti). Kullanıcı adı doğrulayıcıları (`username_format_validator`, `validate_username_not_reserved`) `accounts/models.py` içinde; Faz 1 formları bunları yeniden kullanır. `LOGIN_URL` / `LOGIN_REDIRECT_URL` / `LOGOUT_REDIRECT_URL` ayarları Faz 1'de eklenecek. Geçici ana sayfa `templates/coming_soon.html` (Faz 2'de akışla değişecek). `accounts/tests.py` içinde 8 test var.
 - Faz 1: Kayıt formunda e-posta ve kullanıcı adı, doğrulamadan ÖNCE küçük harfe çevrilir (`LowercaseCharField`/`LowercaseEmailField`), böylece `Ali` yazan kullanıcıya "geçersiz" yerine `ali` olarak kayıt yapılır; benzersizlik kontrolü `iexact` ile yapılır. `?next=` değeri sadece aynı siteye gidiyorsa kabul edilir (open redirect koruması). Ziyaretçiyi mesajla giriş sayfasına yönlendiren `accounts.decorators.login_required_with_message` hazır; Faz 2'de `poll_create` bunu kullanacak. Header'daki "Anket oluştur" linki `/anket/yeni/`'ye gider (Faz 2'ye kadar 404). Mesajlar şimdilik düz kutu (Faz 4'te toast). Toplam 25 test.
+- Faz 2: `Poll`/`Option` modelleri ve `PollCreateForm` hazır. Seçenekler `name="options"` ile gelir; form, hata durumunda girilen seçenekleri `form.option_values` ile geri çizer. Soru/seçenek hataları kullanıcıya Türkçe ve alanın altında gösterilir (seçenek hataları "Seçenekler" bölümünün üstünde). Geçici `coming_soon.html` kaldırıldı; `/` artık `polls:feed`. Akış 3 sabit sorguyla yüklenir (COUNT + anketler/yazar JOIN + seçenekler `prefetch_related`). Kart alt satırı `{{ poll.total_votes|default:0 }} oy` gösterir; Faz 3'te `total_votes` annotation'ı eklenince kendiliğinden dolar. Anket detay sayfasında `<title>` zaten "Soru — kararsızım" biçiminde. Global `[hidden] { display: none !important; }` kuralı eklendi (`.btn` gibi `display` veren sınıflar `hidden` attribute'unu ezmesin diye). Toplam 52 test.
 
 ---
 
