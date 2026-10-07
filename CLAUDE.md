@@ -616,7 +616,7 @@ else:
 
 ## 12. İlerleme durumu
 
-- [ ] Faz 0 — Kurulum ve iskelet
+- [x] Faz 0 — Kurulum ve iskelet
 - [ ] Faz 1 — Kullanıcı sistemi
 - [ ] Faz 2 — Anket oluşturma ve akış
 - [ ] Faz 3 — Oylama ve sonuçlar
@@ -625,7 +625,7 @@ else:
 - [ ] Faz 6 — Vercel'e deploy
 
 **Notlar / alınan kararlar** (Claude Code her faz sonunda buraya ekler)
-- …
+- Faz 0: Python 3.14 + Django 5.2.18 ile kuruldu (yerel `.venv`). `accounts.User` için ek olarak `Lower(email)` ve `Lower(username)` veritabanı kısıtları eklendi (büyük/küçük harf duyarsız benzersizlik DB düzeyinde de garanti). Kullanıcı adı doğrulayıcıları (`username_format_validator`, `validate_username_not_reserved`) `accounts/models.py` içinde; Faz 1 formları bunları yeniden kullanır. `LOGIN_URL` / `LOGIN_REDIRECT_URL` / `LOGOUT_REDIRECT_URL` ayarları Faz 1'de eklenecek. Geçici ana sayfa `templates/coming_soon.html` (Faz 2'de akışla değişecek). `accounts/tests.py` içinde 8 test var.
 
 ---
 
