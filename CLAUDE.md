@@ -61,7 +61,7 @@
 
 | Katman | Seçim | Not |
 |---|---|---|
-| Dil | Python 3.14 (yerel) | Yerelde PyCharm'ın oluşturduğu `.venv` (3.14) kullanılır; Vercel'de Python sürümü Faz 6'da ayrıca sabitlenir |
+| Dil | Python 3.14 (yerel), 3.13 (Vercel) | Yerelde PyCharm'ın oluşturduğu `.venv` (3.14) kullanılır; Vercel'de sürüm repo kökündeki `.python-version` (3.13) ile sabitlenir |
 | Backend | Django 5.2 LTS | Server-side rendering, Django templates |
 | Kimlik doğrulama | Django'nun yerleşik auth sistemi + custom `User` modeli | Supabase Auth **kullanılmıyor** |
 | Veritabanı | Supabase Postgres (geliştirmede SQLite) | Supabase sadece Postgres sunucusu olarak kullanılır; `supabase-py`, Supabase Data API ve Supabase Auth yok |
