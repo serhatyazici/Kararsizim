@@ -632,6 +632,37 @@ else:
 - Faz 4: Django mesajları toast'a çevrildi (sunucu `.toasts` içinde çizer; `main.js` kapatma butonunu ve 4 sn otomatik kapanmayı bağlar, üzerine gelince/odaklanınca durur; JS kapalıyken mesajlar sayfada kalır). "Paylaş" butonu: `navigator.share` → yoksa `navigator.clipboard` → yoksa `execCommand` yedeği; URL, `data-share-path` + `location.origin` ile kurulur. Mobilde (≤640px) header'daki "Anket oluştur" gizlenir, üyeler için sağ altta "+" butonu çıkar (anket oluşturma sayfasında yok). Özel `404.html` (base'i genişletir) ve `500.html` (bağımsız sayfa; sunucu hatasında kullanıcı/oturum bilgisi güvenilir olmadığı için base kullanmaz). Başlık hiyerarşisi: detayda soru `h1`, akışta `h2`; akışta üyeler için görünmez `h1`; "İçeriğe geç" bağlantısı eklendi. **Tasarım kararı:** Sonuç çubuğunun dolgusu, metnin arkasında değil ALTINDA (kartın alt kenarında ince bir çubuk) durur; çünkü canlı renk dolgusu üzerindeki `-ink` metin WCAG AA kontrastını (4.5:1) sağlamıyordu (turuncu ve nane ~3.6:1). Metin sadece tint zemin üzerinde kalır (≥4.6:1). Logo "?" rengi aynı nedenle `--opt-1-ink` oldu. Doğrulama: axe-core (WCAG 2.0/2.1 A-AA + best-practice) 6 sayfada ihlal bulmadı; 360/768/1280px'te yatay taşma yok. Lighthouse ölçümü kullanıcıda. Toplam 105 test (`polls/test_ui.py` eklendi).
 - Faz 5: Proje Supabase'de ("Kararsızım uygulaması udemy", Frankfurt, `eu-central-1`, Postgres 17). `.env`'deki `DATABASE_URL` Transaction pooler (6543) adresi; `migrate` için Session pooler adresi (5432) aynı adresten port değiştirilerek türetildi (aynı sunucu ve kimlik bilgileri, adres sohbette/log'da gösterilmedi). 13 tablo oluştu; RLS tüm `public` tablolarında açıldı (politikasız; Django tabloların sahibi `postgres` ile bağlandığı için etkilenmez). Security Advisor'da "critical" yok, kalan tek bilgi (INFO) uyarısı `rls_enabled_no_policy`: bilinçli, Data API'yi kullanmıyoruz. Her yeni migration'dan sonra RLS SQL'i yeniden çalıştırılmalı (Faz 6'daki deploy öncesi adım). `prepared statement` hatası görülmedi, `prepare_threshold` ayarı eklenmedi (hata çıkarsa eklenecek). Uçtan uca duman testi (kayıt → anket → ziyaretçi/üye oyu → ikinci oy 409 → silme) Supabase'e karşı Django test istemcisiyle çalıştırıldı, tümü başarılı; test verisi silindi. Yerel SQLite verileri taşınmadı; Supabase boş başladı. `createsuperuser` kullanıcı tarafından çalıştırılacak (parola gizli kalır).
 
+### Faz 6'ya devir notu (oturumlar arası; 2026-10-10)
+
+Yeni oturum bu notu okuyup Faz 6'ya buradan devam eder. **Önce Faz 6 dosya planını yaz, onay bekle** (Bölüm 0, kural 2).
+
+**Durum**
+- Git: `master`, son commit `6271fba` ("Faz 5: Supabase'e geçiş notları"), `origin/master` ile aynı; çalışma dizini temizdi. Remote: `https://github.com/serhatyazici/Kararsizim.git`. Branch adı bilinçli olarak `master` (kullanıcı tercihi).
+- Faz 0–5 tamam. Toplam 105 test (Python 3.14 + Django 5.2.18, yerel `.venv`). Faz 6'ya ait kod henüz YOK: `vercel.json` ve `.python-version` oluşturulmadı.
+- Supabase: proje "Kararsızım uygulaması udemy", proje kodu (`project_id`) `vddqpkxwetvexwsmhjjc`, `eu-central-1`. 13 tablo, hepsinde RLS açık, 1 süper kullanıcı var, anket/oy yok (test verileri silindi). Supabase bağlayıcısı (MCP) bağlı: `list_tables`, `get_advisors` ile salt okunur doğrulama yapılabilir.
+- `.env` (git'te değil): `DATABASE_URL` = Transaction pooler (6543) ve DOLU, `DEBUG=True`, `SECRET_KEY` yerel geliştirme anahtarı. Yani yerelde `runserver` ve `manage.py test` Supabase'e bağlanır (testler ayrı bir test veritabanı açıp siler). Yerel SQLite'a dönmek için `DATABASE_URL=` satırını boşalt. **Şifreyi/adresi sohbette ASLA gösterme**; okuman gerekirse maskeleyerek oku (Faz 5'te yapıldığı gibi).
+- Session pooler adresi (migrate/createsuperuser için) ayrıca saklanmaz: Transaction pooler adresinde `:6543/` → `:5432/` yapılarak türetilir.
+
+**Faz 6'da yapılacaklar (plan kullanıcıya sunuldu; kod henüz yazılmadı)**
+1. `vercel.json` (`regions: ["fra1"]`) ve `.python-version` (öneri: `3.13`; Vercel örneklerinde 3.13 geçiyor, en az 3.12 isteniyor; yerel 3.14'ten bilinçli olarak farklı). Bölüm 3'teki Python notunu buna göre güncelle. İlk deploy günlüğünde Python sürümünü doğrula.
+2. `DEBUG=False` + sahte `SECRET_KEY` ile `python manage.py check --deploy` çalıştır, uyarıları raporla (HSTS uyarıları prototipte göz ardı edilir). Build'e `collectstatic` ya da `migrate` EKLEME.
+3. Vercel hesabı: 2026-10-08'de Vercel bağlayıcısında `list_teams` ve `list_projects` BOŞTU (hesapta team/proje yok). Kullanıcının vercel.com'a GitHub ile girip `serhatyazici/Kararsizim` reposuna erişim vermesi gerekir; sonra `create_git_project` (zorunlu `teamId`; kişisel hesap için önce `get_auth_user` / `list_teams` sonucuna bak) veya dashboard'dan import. Vercel MCP araçlarının çoğu "deferred": `ToolSearch` ile şemasını yükle.
+4. Environment Variables (Bölüm 11, Faz 6, adım 5): `SECRET_KEY` (YENİ üret, yerel anahtardan farklı; gizli ekle), `DEBUG=False`, `ALLOWED_HOSTS=.vercel.app`, `CSRF_TRUSTED_ORIGINS=https://*.vercel.app`, `DATABASE_URL` (`.env`'deki Transaction pooler adresi, göstermeden). Gizli değerler Vercel'de "sensitive" tipinde olmalı.
+5. Deploy sonrası kabul kriterleri: site açılıyor, CSS/JS/fontlar yükleniyor; production'da kayıt, giriş, anket, oy; gizli pencerede ziyaretçi oyu + ikinci oy reddi; özel 404 (`DEBUG=False`); veriler Supabase'de; `check --deploy`. Test verilerini temizle. Vercel "Authentication / deployment protection" yüzünden site herkese açık değilse kullanıcıya söyle.
+6. Faz sonunda `CLAUDE.md` ilerleme durumunu güncelle, elle test adımlarını ve commit mesajını yaz.
+
+**Öğrenilen kısıtlar (aynı hataları tekrarlama)**
+- Claude Code izin denetimi, Supabase `apply_migration` (RLS açma) işlemini reddetti ("paylaşılan kaynağı değiştirme"); kullanıcı SQL'i SQL Editor'da kendisi çalıştırdı. Vercel'de proje/env oluşturma da reddedilebilir: reddedilirse aynı sonucu başka araçla DOLANMA, kullanıcıya dashboard adımını ver.
+- Tarayıcı bölmesi bir ara `127.0.0.1:8000`'e gitmeyi reddetti; o durumda Django test istemcisiyle (`django.test.Client`) uçtan uca doğrulama yapıldı. Bölme ekran görüntüsü çizmiyor; `javascript_tool` ile ölçüm yapılabilir. Production URL'sini tarayıcı bölmesinde açmak ayrıca izin isteyebilir.
+- Windows: heredoc içeren `python - <<'EOF'` bazen kabuk hatası veriyor, uzun dosyaları `Write` ile yaz. Konsol çıktısında Türkçe karakter için `PYTHONIOENCODING=utf-8` kullan. `.venv\Scripts\python.exe` ile çalış.
+- Model değişirse: deploy'dan ÖNCE Session pooler ile `migrate` + RLS SQL'i (Faz 5, adım 5–6). Vercel `migrate` çalıştırmaz.
+- Faz 4 notu: Lighthouse ölçümü kullanıcıda (benim çalıştıramadığım tek kabul kriteri).
+
+**Kullanıcı tercihleri (bu oturumdan)**
+- Türkçe, adım adım ve ayrıntılı anlat (kullanıcı Django ve panelleri öğreniyor); "burayı daha detaylı anlat" dediğinde ekranda ne göreceğini de yaz.
+- Bağlı bir MCP aracı bir işi yapabiliyorsa kullanıcıya elle yaptırma, kendin yap; sadece parola gibi yalnızca kullanıcıda olan sırları ve izin denetiminin reddettiklerini ona bırak.
+- Commit/push'u kullanıcı "yap/commitle/pushla" dediğinde ben yapıyorum (commit mesajı Türkçe, `Co-Authored-By` satırıyla). Dosya planını yazıp onay bekle; kullanıcı "başla/tamam" der.
+
 ---
 
 ## 13. Yol haritası (prototipten sonra)
