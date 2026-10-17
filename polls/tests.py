@@ -155,6 +155,50 @@ class PollCreateTests(TestCase):
                 self.client.post(self.url, poll_data())
         self.assertEqual(Poll.objects.count(), 0)
 
+    # --- Hız sınırı: üye başına saatte 5 anket ---
+    def test_sixth_poll_within_an_hour_is_rejected(self):
+        self.client.force_login(self.user)
+        for i in range(5):
+            response = self.client.post(self.url, poll_data(question=f"Sınır sorusu {i}"))
+            self.assertEqual(response.status_code, 302)
+        response = self.client.post(self.url, poll_data(question="Altıncı soru"))
+        self.assertEqual(response.status_code, 429)
+        self.assertContains(response, "Çok hızlı anket açıyorsun", status_code=429)
+        self.assertEqual(Poll.objects.count(), 5)
+
+    def test_rate_limited_form_keeps_entered_data(self):
+        self.client.force_login(self.user)
+        for i in range(5):
+            make_poll(self.user, question=f"Eski anket {i}")
+        response = self.client.post(self.url, poll_data(question="Korunacak soru", options=["Evet", "Hayır"]))
+        self.assertEqual(response.status_code, 429)
+        self.assertContains(response, "Korunacak soru", status_code=429)
+        self.assertContains(response, 'value="Evet"', status_code=429)
+
+    def test_limit_is_per_user(self):
+        for i in range(5):
+            make_poll(self.user, question=f"Eski anket {i}")
+        other = User.objects.create_user("veli@mail.com", "veli", PASSWORD)
+        self.client.force_login(other)
+        response = self.client.post(self.url, poll_data())
+        self.assertEqual(response.status_code, 302)
+
+    def test_old_polls_do_not_count_after_an_hour(self):
+        for i in range(5):
+            make_poll(self.user, question=f"Eski anket {i}")
+        Poll.objects.update(created_at=timezone.now() - timedelta(hours=1, minutes=1))
+        self.client.force_login(self.user)
+        response = self.client.post(self.url, poll_data())
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Poll.objects.count(), 6)
+
+    def test_invalid_form_is_not_reported_as_rate_limited(self):
+        for i in range(5):
+            make_poll(self.user, question=f"Eski anket {i}")
+        self.client.force_login(self.user)
+        response = self.client.post(self.url, poll_data(question=""))
+        self.assertEqual(response.status_code, 200)  # önce doğrulama hatası görülür
+
 
 class FeedTests(TestCase):
     def setUp(self):

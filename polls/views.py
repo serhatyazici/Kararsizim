@@ -1,9 +1,12 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Prefetch, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from accounts.decorators import login_required_with_message
@@ -19,6 +22,9 @@ from .services import (
 )
 
 POLLS_PER_PAGE = 10
+# Spam'e karşı: bir üye son 1 saatte en fazla bu kadar anket açabilir
+POLL_CREATE_LIMIT = 5
+POLL_CREATE_WINDOW = timedelta(hours=1)
 
 
 def poll_queryset():
@@ -83,6 +89,14 @@ def poll_create(request):
     form = PollCreateForm(request.POST if request.method == "POST" else None)
 
     if request.method == "POST" and form.is_valid():
+        # Hız sınırı: formdaki veriler kaybolmasın diye hata olarak aynı form yeniden çizilir (429)
+        recent_polls = Poll.objects.filter(
+            author=request.user, created_at__gte=timezone.now() - POLL_CREATE_WINDOW
+        ).count()
+        if recent_polls >= POLL_CREATE_LIMIT:
+            form.add_error(None, "Çok hızlı anket açıyorsun. Biraz bekleyip tekrar dene.")
+            return render(request, "polls/create.html", {"form": form}, status=429)
+
         # transaction.atomic: içindeki işlemler ya hep birlikte kaydedilir ya da hiçbiri.
         # Anket kaydedilip seçenekler yazılamazsa yarım anket kalmaz.
         with transaction.atomic():
